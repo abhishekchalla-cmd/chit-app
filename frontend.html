@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- <meta charset="UTF-8" /> -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chit App</title>
+
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.8/axios.min.js"
+      integrity="sha512-PJa3oQSLWRB7wHZ7GQ/g+qyv6r4mbuhmiDb8BjSFZ8NZ2a42oTtAq5n0ucWAwcQDlikAtkub+tPVCw4np27WCg=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    ></script>
+    <style>
+      body {
+        font-family: arial;
+      }
+    </style>
+  </head>
+  <body>
+    <button onclick="register()" id="registerer">Register</button>
+    <div id="get-word-container">
+      <button onclick="getWord()">Get word</button>
+      <div id="word-container"></div>
+    </div>
+
+    <script>
+      const registrationButton = document.getElementById("registerer"),
+        getWordContainer = document.getElementById("get-word-container"),
+        wordContainer = document.getElementById("word-container");
+
+      const register = async () => {
+        const token = await axios
+          .post("/get-token")
+          .then(({ data }) => data.token);
+        localStorage.setItem("token", token);
+
+        alert("Registered!");
+        refreshUI();
+      };
+
+      const getWord = async () => {
+        const token = localStorage.getItem("token");
+        return axios
+          .post("/get-word", {}, { headers: { token } })
+          .then(({ data }) => {
+            wordContainer.innerHTML = data.word;
+          })
+          .catch(
+            (err) =>
+              console.log(err.response) ||
+              alert((err.response.data || {}).message)
+          );
+      };
+
+      /*
+
+
+
+      on load events
+
+
+
+      */
+      const refreshUI = () => {
+        const token = localStorage.getItem("token");
+        console.log("Token", token);
+        if (token) {
+          registrationButton.style.display = "none";
+          getWordContainer.style.display = "block";
+        } else {
+          registrationButton.style.display = "block";
+          getWordContainer.style.display = "none";
+        }
+      };
+
+      refreshUI();
+    </script>
+  </body>
+</html>
