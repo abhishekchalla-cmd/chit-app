@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dictionary setter</title>
+
+    <link href="./style.css" rel="stylesheet" type="text/css" />
+
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.8/axios.min.js"
+      integrity="sha512-PJa3oQSLWRB7wHZ7GQ/g+qyv6r4mbuhmiDb8BjSFZ8NZ2a42oTtAq5n0ucWAwcQDlikAtkub+tPVCw4np27WCg=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    ></script>
+  </head>
+  <body class="dict-setter">
+    <div class="container">
+      <div class="logo">Chit-pit</div>
+      <div class="dict-text-container">
+        <textarea
+          id="dict-text"
+          placeholder="Type words separated by line..."
+          style="display: none"
+        ></textarea>
+        <button onclick="setDict()">Set Dictionary</button>
+      </div>
+    </div>
+
+    <script>
+      const dictTextContainer = document.getElementById("dict-text");
+
+      async function setDict() {
+        const dictText = dictTextContainer.value;
+        const dict = dictText
+          .split("\n")
+          .filter((e) => e)
+          .map((word, index) => ({ word: word.trim(), originalIndex: index }));
+
+        await axios
+          .post("/set-dict", dict)
+          .then((res) => alert("Dictionary set!"))
+          .catch((err) => alert((err.response.data || {}).message));
+      }
+
+      async function getDictState() {
+        try {
+          const dictState = await axios
+            .get("/get-dict-state")
+            .then(({ data }) => data);
+
+          dictTextContainer.value = dictState
+            .sort((a, b) => a.originalIndex - b.originalIndex)
+            .map((e) => e.word)
+            .join("\n");
+          dictTextContainer.style.display = "block";
+        } catch (err) {
+          console.error(err);
+          alert("Failed to fetch Dict state");
+        }
+      }
+
+      getDictState();
+    </script>
+  </body>
+</html>

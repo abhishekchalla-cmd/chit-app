@@ -1,16 +1,13 @@
 const express = require("express");
 const app = express();
-const fs = require("fs");
 const path = require("path");
 const { v4 } = require("uuid");
 
 const dictRef = { dict: [] };
 
-app.get("/", (req, res) => {
-  return res.send(
-    fs.readFileSync(path.resolve(__dirname, "./frontend.html"), "utf-8")
-  );
-});
+app.use(express.json());
+
+app.use("/", express.static(path.resolve(__dirname, "./frontend")));
 
 app.post("/get-token", (req, res) => {
   return res.json({ token: v4() });
@@ -35,8 +32,8 @@ app.post("/get-word", (req, res) => {
   return res.json(assigned);
 });
 
-app.get("/refresh-dict", (req, res) => {
-  dictRef.dict = require("./dict.json");
+app.post("/set-dict", (req, res) => {
+  dictRef.dict = req.body;
 
   /*
 
@@ -47,15 +44,7 @@ app.get("/refresh-dict", (req, res) => {
 
 
   */
-  console.log(
-    "Before shuffling",
-    JSON.stringify(
-      dictRef.dict.map((e) => e.word),
-      null,
-      2
-    )
-  );
-  for (let i = 0; i < dictRef.dict.length; i++) {
+  for (const _ of dictRef.dict) {
     const indexArray = new Array(dictRef.dict.length)
       .fill("")
       .map((e, index) => index);
@@ -73,15 +62,6 @@ app.get("/refresh-dict", (req, res) => {
     dictRef.dict[startIndex] = dictRef.dict[endIndex];
     dictRef.dict[endIndex] = temp;
   }
-
-  console.log(
-    "After shuffling",
-    JSON.stringify(
-      dictRef.dict.map((e) => e.word),
-      null,
-      2
-    )
-  );
 
   return res.send("OK");
 });

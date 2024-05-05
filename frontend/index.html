@@ -5,23 +5,28 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Chit App</title>
 
+    <link href="./style.css" rel="stylesheet" type="text/css" />
+
     <script
       src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.8/axios.min.js"
       integrity="sha512-PJa3oQSLWRB7wHZ7GQ/g+qyv6r4mbuhmiDb8BjSFZ8NZ2a42oTtAq5n0ucWAwcQDlikAtkub+tPVCw4np27WCg=="
       crossorigin="anonymous"
       referrerpolicy="no-referrer"
     ></script>
-    <style>
-      body {
-        font-family: arial;
-      }
-    </style>
   </head>
-  <body>
-    <button onclick="register()" id="registerer">Register</button>
-    <div id="get-word-container">
-      <button onclick="getWord()">Get word</button>
-      <div id="word-container"></div>
+  <body class="index">
+    <div class="container">
+      <div class="logo">Chit-pit</div>
+      <div class="main">
+        <button onclick="register()" id="registerer">Register</button>
+        <div id="get-word-container">
+          <div id="word-container">
+            <span>Your word is</span>
+            <div class="word"></div>
+          </div>
+          <button onclick="getWord()">Get word</button>
+        </div>
+      </div>
     </div>
 
     <script>
@@ -44,7 +49,9 @@
         return axios
           .post("/get-word", {}, { headers: { token } })
           .then(({ data }) => {
-            wordContainer.innerHTML = data.word;
+            wordContainer.style.display = "block";
+            wordContainer.getElementsByClassName("word")[0].innerHTML =
+              data.word;
           })
           .catch(
             (err) =>
@@ -72,6 +79,8 @@
           registrationButton.style.display = "block";
           getWordContainer.style.display = "none";
         }
+
+        wordContainer.style.display = "none";
       };
 
       refreshUI();
